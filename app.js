@@ -357,8 +357,8 @@ function renderDashboard() {
                 </select>
             </td>
             <td>
-                <button class="btn-danger-icon" data-id="${res.id}" title="Eliminar Reserva">
-                    &#128465; Borrar
+                <button class="btn-danger" data-id="${res.id}" title="Eliminar Reserva" style="padding: 0.4rem 0.8rem; border-radius: 4px; border:none; cursor:pointer; background-color: #e53e3e; color: white; display: flex; align-items: center; gap: 0.5rem;">
+                    Eliminar
                 </button>
             </td>
         `;
@@ -385,7 +385,7 @@ function renderDashboard() {
     });
 
     // Delegar borrado Firestore
-    document.querySelectorAll('.btn-danger-icon').forEach(btn => {
+    document.querySelectorAll('.btn-danger').forEach(btn => {
         btn.addEventListener('click', async function() {
             if (confirm("¿Estás seguro que deseas eliminar esta reserva de la nube? Este bloque será liberado inmediatamente para los docentes en todo momento.")) {
                 try {
