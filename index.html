@@ -115,19 +115,18 @@
         <!-- VISTA ADMIN DASHBOARD -->
         <section id="adminDashboardView" class="view-section d-none">
             <div class="card dashboard-card">
-                <div class="dashboard-header">
-                    <h3>Gestión de Solicitudes</h3>
-                    <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
-                </div>
-                
-                <div class="dashboard-filters" style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; background-color: #f7fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
-                        <span style="font-weight: 600; color: #4a5568;">Rango Exportación:</span>
-                        <input type="date" id="pdfStartDate" class="btn-outline" style="padding: 0.5rem; border-radius: 4px; border-color: var(--border-color); color: var(--text-main); background: #fff;" title="Fecha Inicio">
-                        <span style="font-weight: 500;">hasta</span>
-                        <input type="date" id="pdfEndDate" class="btn-outline" style="padding: 0.5rem; border-radius: 4px; border-color: var(--border-color); color: var(--text-main); background: #fff;" title="Fecha Fin">
+                <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0;">Gestión de Solicitudes</h3>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label for="exportYear" style="margin: 0; font-weight: 600;">Año:</label>
+                            <select id="exportYear" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc;">
+                                <option value="Todos">Todos</option>
+                            </select>
+                            <button id="btnExportPDF" class="btn" style="background-color: #10b981; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">📄 Exportar PDF</button>
+                        </div>
+                        <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
                     </div>
-                    <button id="btnDownloadPDF" class="btn-primary" style="background-color: #107c41; border-color: #107c41; margin-top: 0; width: auto; padding: 0.6rem 1.2rem;">⬇ Generar y Descargar PDF</button>
                 </div>
                 
                 <div class="table-responsive">
@@ -160,11 +159,11 @@
     <!-- Notificación emergente Toast -->
     <div id="toast" class="toast">Gracias por solicitar la sala de informática</div>
 
-    <!-- jsPDF para exportar reportes -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
     <!-- Firebase SDKs -->
-    <script type="module" src="app.js?v=2.4"></script>
+    <!-- PDF Generation Libraries (Local) -->
+    <script src="jspdf.min.js"></script>
+    <script src="autotable.min.js"></script>
+    
+    <script type="module" src="app.js?v=2.3"></script>
 </body>
 </html>
