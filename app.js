@@ -66,7 +66,8 @@ const btnLogout = document.getElementById('btnLogout');
 // Dashboard Admin
 const reservasTbody = document.getElementById('reservasTbody');
 const noReservasMsg = document.getElementById('noReservasMsg');
-const pdfYearSelect = document.getElementById('pdfYearSelect');
+const pdfStartDate = document.getElementById('pdfStartDate');
+const pdfEndDate = document.getElementById('pdfEndDate');
 const btnDownloadPDF = document.getElementById('btnDownloadPDF');
 
 // --- INICIALIZACIÓN ---
@@ -317,21 +318,6 @@ function getStatusClass(statusStr) {
 }
 
 function renderDashboard() {
-    // Actualizar selector de años dinámicamente según BD
-    const years = new Set(reservas.map(r => r.fecha.split('-')[0]));
-    const currentVal = pdfYearSelect.value;
-    pdfYearSelect.innerHTML = '<option value="ALL">Todos los años</option>';
-    Array.from(years).sort().reverse().forEach(year => {
-        const opt = document.createElement('option');
-        opt.value = year;
-        opt.textContent = year;
-        pdfYearSelect.appendChild(opt);
-    });
-    // Conservar selección previal si existe
-    if(years.has(currentVal) || currentVal === 'ALL') {
-        pdfYearSelect.value = currentVal;
-    }
-
     reservasTbody.innerHTML = '';
     
     if (reservas.length === 0) {
@@ -427,15 +413,24 @@ function escapeHtml(unsafe) {
 }
 
 function handleDownloadPDF() {
-    const year = pdfYearSelect.value;
+    const start = pdfStartDate.value;
+    const end = pdfEndDate.value;
     
     let filteredReservas = reservas;
-    if (year !== 'ALL') {
-        filteredReservas = reservas.filter(r => r.fecha.startsWith(year));
+    
+    // Filtrar si hay fechas
+    if (start || end) {
+        filteredReservas = reservas.filter(r => {
+            let passStart = true;
+            let passEnd = true;
+            if(start) passStart = r.fecha >= start;
+            if(end) passEnd = r.fecha <= end;
+            return passStart && passEnd;
+        });
     }
     
     if (filteredReservas.length === 0) {
-        alert("No hay reservas registradas para el año que has seleccionado.");
+        alert("No hay reservas registradas en el rango de fechas seleccionado.");
         return;
     }
 
@@ -454,7 +449,17 @@ function handleDownloadPDF() {
     const doc = new jsPDF('p', 'mm', 'a4');
     
     doc.setFontSize(14);
-    doc.text(`Reporte de Uso de Sala - Escuela Metrenco (${year === 'ALL' ? 'Ciclo Completo' : year})`, 14, 15);
+    
+    // Título condicional según rango
+    let timeRangeSubtitle = "[Historial Completo]";
+    if (start && end) timeRangeSubtitle = `[Desde ${start} hasta ${end}]`;
+    else if (start) timeRangeSubtitle = `[Desde ${start}]`;
+    else if (end) timeRangeSubtitle = `[Hasta ${end}]`;
+
+    doc.text(`Reporte de Uso de Sala - Escuela Metrenco`, 14, 15);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(timeRangeSubtitle, 14, 21);
     
     const tableData = sortedReservas.map(res => {
         const [y, m, d] = res.fecha.split('-');
@@ -469,7 +474,7 @@ function handleDownloadPDF() {
     });
 
     doc.autoTable({
-        startY: 23,
+        startY: 26,
         head: [['Fecha', 'Bloque', 'Profesor(a)', 'Curso', 'Asignatura', 'Estado']],
         body: tableData,
         theme: 'grid',
@@ -478,7 +483,7 @@ function handleDownloadPDF() {
     });
 
     const timestampName = new Date().toISOString().slice(0, 10);
-    doc.save(`Reservas_Informática_Metrenco_${year === 'ALL' ? 'Total' : year}_${timestampName}.pdf`);
+    doc.save(`Reservas_Informática_Metrenco_${timestampName}.pdf`);
 }
 
 init();

@@ -118,9 +118,10 @@
                 <div class="dashboard-header">
                     <h3>Gestión de Solicitudes</h3>
                     <div style="display: flex; gap: 1rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
-                        <select id="pdfYearSelect" class="btn-outline" style="padding: 0.5rem; border-radius: 4px;">
-                            <option value="ALL">Todos los años</option>
-                        </select>
+                        <input type="date" id="pdfStartDate" class="btn-outline" style="padding: 0.5rem; border-radius: 4px;" title="Fecha Inicio">
+                        <span style="font-weight: 500;">hasta</span>
+                        <input type="date" id="pdfEndDate" class="btn-outline" style="padding: 0.5rem; border-radius: 4px;" title="Fecha Fin">
+                        
                         <button id="btnDownloadPDF" class="btn-primary" style="background-color: #107c41; border-color: #107c41;">⬇ Descargar PDF</button>
                         <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
                     </div>
@@ -161,6 +162,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Firebase SDKs -->
-    <script type="module" src="app.js?v=2.2"></script>
+    <script type="module" src="app.js?v=2.3"></script>
 </body>
 </html>
