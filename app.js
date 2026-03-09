@@ -63,6 +63,15 @@ const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const btnLogout = document.getElementById('btnLogout');
 
+// Export Admin
+const filterInicio = document.getElementById('filterInicio');
+const filterFin = document.getElementById('filterFin');
+const btnFilter = document.getElementById('btnFilter');
+const btnClearFilter = document.getElementById('btnClearFilter');
+const btnExportPDF = document.getElementById('btnExportPDF');
+const btnExportExcel = document.getElementById('btnExportExcel');
+const btnExportWord = document.getElementById('btnExportWord');
+
 // Dashboard Admin
 const reservasTbody = document.getElementById('reservasTbody');
 const noReservasMsg = document.getElementById('noReservasMsg');
@@ -72,6 +81,13 @@ function init() {
     setupEventListeners();
     setMinDate();
     listenToFirestore(); // Habilitar escucha en tiempo real
+    
+    // Configurar fechas por defecto del filtro (mes actual)
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    filterInicio.value = firstDay.toISOString().split('T')[0];
+    filterFin.value = today.toISOString().split('T')[0];
 }
 
 function setupEventListeners() {
@@ -86,6 +102,17 @@ function setupEventListeners() {
 
     // Eventos Admin Login
     loginForm.addEventListener('submit', handleLogin);
+
+    // Eventos Panel Exportación Admin
+    btnFilter.addEventListener('click', renderDashboard);
+    btnClearFilter.addEventListener('click', () => {
+        filterInicio.value = '';
+        filterFin.value = '';
+        renderDashboard();
+    });
+    btnExportPDF.addEventListener('click', exportarPDF);
+    btnExportExcel.addEventListener('click', exportarExcel);
+    btnExportWord.addEventListener('click', exportarWord);
 }
 
 // --- LOGICA CORE FIREBASE LECTURAS EN TIEMPO REAL ---
@@ -317,10 +344,35 @@ function getStatusClass(statusStr) {
     return '';
 }
 
+function getFilteredReservas() {
+    let filtradas = [...reservas];
+    
+    const fInicio = filterInicio.value;
+    const fFin = filterFin.value;
+
+    if (fInicio) {
+        filtradas = filtradas.filter(r => r.fecha >= fInicio);
+    }
+    if (fFin) {
+        filtradas = filtradas.filter(r => r.fecha <= fFin);
+    }
+
+    return filtradas.sort((a, b) => {
+        const dateA = new Date(a.fecha);
+        const dateB = new Date(b.fecha);
+        if (dateA.getTime() !== dateB.getTime()) {
+            return dateB - dateA; // Descendente por fecha
+        }
+        return a.bloque.localeCompare(b.bloque);
+    });
+}
+
 function renderDashboard() {
     reservasTbody.innerHTML = '';
     
-    if (reservas.length === 0) {
+    const sortedReservas = getFilteredReservas();
+    
+    if (sortedReservas.length === 0) {
         noReservasMsg.classList.remove('d-none');
         document.querySelector('.table-responsive').classList.add('d-none');
         return;
@@ -328,16 +380,6 @@ function renderDashboard() {
 
     noReservasMsg.classList.add('d-none');
     document.querySelector('.table-responsive').classList.remove('d-none');
-
-    const sortedReservas = [...reservas].sort((a, b) => {
-        const dateA = new Date(a.fecha);
-        const dateB = new Date(b.fecha);
-        // Fecha de reserva futura primero o viceversa (según convenga)
-        if (dateB.getTime() !== dateA.getTime()){
-            return dateB - dateA; 
-        }
-        return a.bloque.localeCompare(b.bloque);
-    });
 
     sortedReservas.forEach(res => {
         const tr = document.createElement('tr');
@@ -402,14 +444,118 @@ function renderDashboard() {
     });
 }
 
-function escapeHtml(unsafe) {
-    if(!unsafe) return "";
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+// --- LOGICA DE EXPORTACIÓN ---
+function formatDataForExport() {
+    const data = getFilteredReservas();
+    return data.map(r => {
+        const [year, month, day] = r.fecha.split('-');
+        return [
+            `${day}/${month}/${year}`,
+            r.bloque,
+            r.profesor,
+            r.curso,
+            r.asignatura,
+            r.objetivo,
+            r.estado
+        ];
+    });
+}
+
+function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape'); // Horizontal para que quepa bien
+    
+    doc.text("Reporte de Reservas - Escuela Metrenco", 14, 15);
+    
+    let subTitle = "Todas las fechas";
+    if(filterInicio.value || filterFin.value) {
+        subTitle = `Desde: ${filterInicio.value || 'Siempre'} - Hasta: ${filterFin.value || 'Siempre'}`;
+    }
+    doc.setFontSize(10);
+    doc.text(subTitle, 14, 22);
+
+    const tableData = formatDataForExport();
+    
+    if(tableData.length === 0) {
+        alert("No hay datos para exportar en este rango de fechas.");
+        return;
+    }
+
+    doc.autoTable({
+        startY: 28,
+        head: [['Fecha', 'Bloque', 'Profesor(a)', 'Curso', 'Asignatura', 'Objetivo', 'Estado']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [10, 102, 194] },
+        styles: { fontSize: 8 }
+    });
+
+    doc.save(`Reservas_Metrenco_${Date.now()}.pdf`);
+}
+
+function exportarExcel() {
+    const tableData = formatDataForExport();
+    if(tableData.length === 0) {
+        alert("No hay datos para exportar en este rango de fechas.");
+        return;
+    }
+    
+    // Agregar cabecera
+    tableData.unshift(['Fecha', 'Bloque', 'Profesor(a)', 'Curso', 'Asignatura', 'Objetivo', 'Estado']);
+    
+    const ws = XLSX.utils.aoa_to_sheet(tableData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Reservas");
+    
+    XLSX.writeFile(wb, `Reservas_Metrenco_${Date.now()}.xlsx`);
+}
+
+function exportarWord() {
+    const tableData = formatDataForExport();
+    if(tableData.length === 0) {
+        alert("No hay datos para exportar en este rango de fechas.");
+        return;
+    }
+
+    let htmlTable = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>Reporte Reservas</title></head>
+    <body>
+        <h2 style="font-family: sans-serif; color: #0a66c2;">Reporte de Reservas - Escuela Metrenco</h2>
+        <p style="font-family: sans-serif; color: #555;">Documento generado automáticamente.</p>
+        <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-family: sans-serif; width:100%;">
+            <thead>
+                <tr style="background-color: #0a66c2; color: white;">
+                    <th>Fecha</th><th>Bloque</th><th>Profesor(a)</th><th>Curso</th><th>Asignatura</th><th>Objetivo</th><th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>`;
+            
+    tableData.forEach(row => {
+        htmlTable += `<tr>
+            <td>${escapeHtml(row[0])}</td>
+            <td>${escapeHtml(row[1])}</td>
+            <td>${escapeHtml(row[2])}</td>
+            <td>${escapeHtml(row[3])}</td>
+            <td>${escapeHtml(row[4])}</td>
+            <td>${escapeHtml(row[5])}</td>
+            <td>${escapeHtml(row[6])}</td>
+        </tr>`;
+    });
+    
+    htmlTable += `</tbody></table></body></html>`;
+
+    const blob = new Blob(['\ufeff', htmlTable], {
+        type: 'application/msword'
+    });
+    
+    // Crear un enlace temporal para descargar
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Reservas_Metrenco_${Date.now()}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 init();

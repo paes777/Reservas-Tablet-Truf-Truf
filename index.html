@@ -120,6 +120,28 @@
                     <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
                 </div>
                 
+                <!-- Panel de Filtro y Exportación -->
+                <div class="export-panel">
+                    <div class="export-filters">
+                        <div class="form-group mb-0">
+                            <label for="filterInicio">Desde Fecha:</label>
+                            <input type="date" id="filterInicio">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="filterFin">Hasta Fecha:</label>
+                            <input type="date" id="filterFin">
+                        </div>
+                        <button id="btnFilter" class="btn-secondary">Filtrar</button>
+                        <button id="btnClearFilter" class="btn-outline-secondary">Limpiar</button>
+                    </div>
+                    <div class="export-buttons">
+                        <span class="export-label">Exportar a:</span>
+                        <button id="btnExportPDF" class="btn-export pdf-btn" title="Descargar PDF">&#128196; PDF</button>
+                        <button id="btnExportExcel" class="btn-export excel-btn" title="Descargar Excel">&#128202; Excel</button>
+                        <button id="btnExportWord" class="btn-export word-btn" title="Descargar Word">&#128216; Word</button>
+                    </div>
+                </div>
+                
                 <div class="table-responsive">
                     <table class="reservas-table">
                         <thead>
@@ -148,7 +170,14 @@
     </main>
 
     <!-- Notificación emergente Toast -->
-    <div id="toast" class="toast">¡Solicitud registrada con éxito!</div>
+    <div id="toast" class="toast">Gracias por solicitar la sala de informática</div>
+
+    <!-- CDNs de Librerías de Exportación -->
+    <!-- SheetJS (Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF y AutoTable (PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Firebase SDKs -->
     <script type="module" src="app.js"></script>
