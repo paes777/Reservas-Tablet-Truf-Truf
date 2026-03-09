@@ -66,6 +66,8 @@ const btnLogout = document.getElementById('btnLogout');
 // Dashboard Admin
 const reservasTbody = document.getElementById('reservasTbody');
 const noReservasMsg = document.getElementById('noReservasMsg');
+const pdfYearSelect = document.getElementById('pdfYearSelect');
+const btnDownloadPDF = document.getElementById('btnDownloadPDF');
 
 // --- INICIALIZACIÓN ---
 function init() {
@@ -86,6 +88,7 @@ function setupEventListeners() {
 
     // Eventos Admin Login
     loginForm.addEventListener('submit', handleLogin);
+    btnDownloadPDF.addEventListener('click', handleDownloadPDF);
 }
 
 // --- LOGICA CORE FIREBASE LECTURAS EN TIEMPO REAL ---
@@ -314,6 +317,21 @@ function getStatusClass(statusStr) {
 }
 
 function renderDashboard() {
+    // Actualizar selector de años dinámicamente según BD
+    const years = new Set(reservas.map(r => r.fecha.split('-')[0]));
+    const currentVal = pdfYearSelect.value;
+    pdfYearSelect.innerHTML = '<option value="ALL">Todos los años</option>';
+    Array.from(years).sort().reverse().forEach(year => {
+        const opt = document.createElement('option');
+        opt.value = year;
+        opt.textContent = year;
+        pdfYearSelect.appendChild(opt);
+    });
+    // Conservar selección previal si existe
+    if(years.has(currentVal) || currentVal === 'ALL') {
+        pdfYearSelect.value = currentVal;
+    }
+
     reservasTbody.innerHTML = '';
     
     if (reservas.length === 0) {
@@ -406,6 +424,61 @@ function escapeHtml(unsafe) {
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
+}
+
+function handleDownloadPDF() {
+    const year = pdfYearSelect.value;
+    
+    let filteredReservas = reservas;
+    if (year !== 'ALL') {
+        filteredReservas = reservas.filter(r => r.fecha.startsWith(year));
+    }
+    
+    if (filteredReservas.length === 0) {
+        alert("No hay reservas registradas para el año que has seleccionado.");
+        return;
+    }
+
+    // Ordenamiento igual al del dashboard
+    const sortedReservas = [...filteredReservas].sort((a, b) => {
+        const dateA = new Date(a.fecha);
+        const dateB = new Date(b.fecha);
+        if (dateB.getTime() !== dateA.getTime()){
+            return dateB - dateA; 
+        }
+        return a.bloque.localeCompare(b.bloque);
+    });
+
+    // jsPDF instanciación
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    doc.setFontSize(14);
+    doc.text(`Reporte de Uso de Sala - Escuela Metrenco (${year === 'ALL' ? 'Ciclo Completo' : year})`, 14, 15);
+    
+    const tableData = sortedReservas.map(res => {
+        const [y, m, d] = res.fecha.split('-');
+        return [
+            `${d}/${m}/${y}`,
+            res.bloque,
+            res.profesor,
+            res.curso,
+            res.asignatura,
+            res.estado
+        ];
+    });
+
+    doc.autoTable({
+        startY: 23,
+        head: [['Fecha', 'Bloque', 'Profesor(a)', 'Curso', 'Asignatura', 'Estado']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 124, 65] }, // Verde estilo Metrenco / Excel
+        styles: { fontSize: 8 }
+    });
+
+    const timestampName = new Date().toISOString().slice(0, 10);
+    doc.save(`Reservas_Informática_Metrenco_${year === 'ALL' ? 'Total' : year}_${timestampName}.pdf`);
 }
 
 init();

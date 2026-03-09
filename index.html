@@ -117,7 +117,13 @@
             <div class="card dashboard-card">
                 <div class="dashboard-header">
                     <h3>Gestión de Solicitudes</h3>
-                    <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
+                    <div style="display: flex; gap: 1rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+                        <select id="pdfYearSelect" class="btn-outline" style="padding: 0.5rem; border-radius: 4px;">
+                            <option value="ALL">Todos los años</option>
+                        </select>
+                        <button id="btnDownloadPDF" class="btn-primary" style="background-color: #107c41; border-color: #107c41;">⬇ Descargar PDF</button>
+                        <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
+                    </div>
                 </div>
                 
                 <div class="table-responsive">
@@ -150,7 +156,11 @@
     <!-- Notificación emergente Toast -->
     <div id="toast" class="toast">Gracias por solicitar la sala de informática</div>
 
+    <!-- jsPDF para exportar reportes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <!-- Firebase SDKs -->
-    <script type="module" src="app.js?v=2.1"></script>
+    <script type="module" src="app.js?v=2.2"></script>
 </body>
 </html>
