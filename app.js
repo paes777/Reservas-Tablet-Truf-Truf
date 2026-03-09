@@ -66,8 +66,6 @@ const btnLogout = document.getElementById('btnLogout');
 // Export Admin
 const filterInicio = document.getElementById('filterInicio');
 const filterFin = document.getElementById('filterFin');
-const btnFilter = document.getElementById('btnFilter');
-const btnClearFilter = document.getElementById('btnClearFilter');
 const btnExportPDF = document.getElementById('btnExportPDF');
 const btnExportExcel = document.getElementById('btnExportExcel');
 const btnExportWord = document.getElementById('btnExportWord');
@@ -99,12 +97,6 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
 
     // Eventos Panel Exportación Admin
-    btnFilter.addEventListener('click', renderDashboard);
-    btnClearFilter.addEventListener('click', () => {
-        filterInicio.value = '';
-        filterFin.value = '';
-        renderDashboard();
-    });
     btnExportPDF.addEventListener('click', exportarPDF);
     btnExportExcel.addEventListener('click', exportarExcel);
     btnExportWord.addEventListener('click', exportarWord);
@@ -365,9 +357,17 @@ function getFilteredReservas() {
 function renderDashboard() {
     reservasTbody.innerHTML = '';
     
-    const sortedReservas = getFilteredReservas();
+    // La TV siempre muestra todas las reservas ordenadas
+    const allReservasSorted = [...reservas].sort((a, b) => {
+        const dateA = new Date(a.fecha);
+        const dateB = new Date(b.fecha);
+        if (dateA.getTime() !== dateB.getTime()) {
+            return dateB - dateA;
+        }
+        return a.bloque.localeCompare(b.bloque);
+    });
     
-    if (sortedReservas.length === 0) {
+    if (allReservasSorted.length === 0) {
         noReservasMsg.classList.remove('d-none');
         document.querySelector('.table-responsive').classList.add('d-none');
         return;
@@ -376,7 +376,7 @@ function renderDashboard() {
     noReservasMsg.classList.add('d-none');
     document.querySelector('.table-responsive').classList.remove('d-none');
 
-    sortedReservas.forEach(res => {
+    allReservasSorted.forEach(res => {
         const tr = document.createElement('tr');
         
         const [year, month, day] = res.fecha.split('-');
