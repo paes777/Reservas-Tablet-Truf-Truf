@@ -454,8 +454,13 @@ function handleExportPDF() {
     });
 
     try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const jsPDFConstructor = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+        
+        if (!jsPDFConstructor) {
+            throw new Error("La librería de PDFs no se cargó correctamente en este navegador.");
+        }
+
+        const doc = new jsPDFConstructor();
         
         doc.setFontSize(18);
         doc.text(`Reporte de Reservas de Informática - ${selectedYear}`, 14, 22);
@@ -492,7 +497,7 @@ function handleExportPDF() {
         doc.save(`Reservas_Informatica_Metrenco_${selectedYear}.pdf`);
     } catch(err) {
         console.error("Error generating PDF:", err);
-        alert("Asegurese de estar conectado a internet. Ha ocurrido un error al generar de PDF.");
+        alert("Error técnico al descargar PDF: " + err.message + "\n\nSolución: Presiona la tecla 'F5' o 'Ctrl + F5' para forzar la actualización de esta página en este computador.");
     }
 }
 
