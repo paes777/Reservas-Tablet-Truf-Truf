@@ -192,13 +192,16 @@ function getAvailableBlocks(dateString) {
     const isFriday = day === 5;
     const baseBlocks = isFriday ? [...BLOCKS_FRI] : [...BLOCKS_MON_THU];
     
-    const reservedOnDate = reservas
+    const reservedOnDateMap = {};
+    reservas
         .filter(r => r.fecha === dateString)
-        .map(r => r.bloque);
+        .forEach(r => {
+            reservedOnDateMap[r.bloque] = r.profesor;
+        });
 
     return {
         base: baseBlocks,
-        reserved: reservedOnDate
+        reserved: reservedOnDateMap
     };
 }
 
@@ -223,22 +226,15 @@ function handleFechaChange() {
         option.value = b;
         option.textContent = b;
         
-        if (blocksData.reserved.includes(b)) {
+        if (blocksData.reserved[b]) {
             option.disabled = true;
-            option.textContent += " (Ocupado)";
+            option.textContent += ` (Ocupado por ${blocksData.reserved[b]})`;
         }
         
         fieldBloque.appendChild(option);
     });
 
     fieldBloque.disabled = false;
-
-    if (blocksData.reserved.length >= blocksData.base.length) {
-        alert("Lo sentimos. Ese día ya tiene todos los bloques horarios reservados.");
-        fieldFecha.value = "";
-        fieldBloque.innerHTML = '<option value="">Día completamente ocupado...</option>';
-        fieldBloque.disabled = true;
-    }
 }
 
 async function handleReservaSubmit(e) {
@@ -253,7 +249,7 @@ async function handleReservaSubmit(e) {
 
     // Verificación sincrónica antes de envío
     const blocksData = getAvailableBlocks(fecha);
-    if (blocksData.reserved.includes(bloque)) {
+    if (blocksData.reserved[bloque]) {
         alert("Error crítico: El bloque seleccionado acaba de ser reservado. Por favor elija otro.");
         handleFechaChange();
         return;
