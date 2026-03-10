@@ -287,6 +287,13 @@ async function handleDocenteRegister(e) {
     const name = document.getElementById('docenteNameReg').value.trim();
     const user = document.getElementById('docenteUserReg').value.trim().toLowerCase();
     const pass = document.getElementById('docentePassReg').value;
+    const confirmPass = document.getElementById('docentePassConfirmReg').value;
+    
+    if (pass !== confirmPass) {
+        docenteRegError.textContent = "Las contraseñas no coinciden.";
+        docenteRegError.classList.remove('d-none');
+        return;
+    }
     
     if (!/^\d{6}$/.test(pass)) {
         docenteRegError.textContent = "La contraseña debe ser de exactamente 6 números.";
