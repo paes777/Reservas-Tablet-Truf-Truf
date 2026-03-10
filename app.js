@@ -189,6 +189,11 @@ function listenToFirestore() {
             renderDashboard();
         }
         
+        // Si hay un docente logeado, refrezcar su tabla "Mis Reservas"
+        if (currentDocenteUser) {
+            renderMyReservas();
+        }
+        
         // Si hay una fecha seleccionada en el formulario del docente, actualizamos su disponibilidad
         if (fieldFecha.value) {
             handleFechaChange();
