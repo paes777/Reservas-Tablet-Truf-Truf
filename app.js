@@ -408,11 +408,14 @@ function getAvailableBlocks(dateString) {
     reservas
         .filter(r => r.fecha === dateString)
         .forEach(r => {
-            // Guardamos un objeto con la info para no depender solo del nombre
-            reservedOnDateMap[r.bloque] = {
-                profesor: r.profesor || "Profesor(a) no identificado",
-                isReserved: true
-            };
+            // Si hay bloques combinados (ej. "09:00 a 09:45 y 09:45 a 10:30"), los separamos para bloquear la UI individualmente
+            const bloquesSeparados = r.bloque.split(' y ');
+            bloquesSeparados.forEach(bol => {
+                reservedOnDateMap[bol.trim()] = {
+                    profesor: r.profesor || "Profesor(a) no identificado",
+                    isReserved: true
+                };
+            });
         });
 
     return {
@@ -528,21 +531,19 @@ async function handleReservaSubmit(e) {
     btnSubmitReserva.textContent = "Procesando...";
 
     try {
-        for (let bol of bloquesElegidos) {
-            await addDoc(reservasRef, {
-                userId: currentDocenteUser ? currentDocenteUser.uid : 'desconocido',
-                profesor,
-                fecha,
-                bloque: bol,
-                curso,
-                asignatura,
-                objetivo,
-                estado: 'Pendiente', 
-                createdAt: serverTimestamp() // Guardado universal en la nube
-            });
-        }
+        await addDoc(reservasRef, {
+            userId: currentDocenteUser ? currentDocenteUser.uid : 'desconocido',
+            profesor,
+            fecha,
+            bloque: bloquesElegidos.join(' y '), // Unifica 2 bloques continuos en UNA Sola Cadena
+            curso,
+            asignatura,
+            objetivo,
+            estado: 'Pendiente', 
+            createdAt: serverTimestamp() // Guardado universal en la nube
+        });
         
-        showToast(`Gracias por solicitar ${bloquesElegidos.length} bloque(s) de la sala de informática`);
+        showToast(`Gracias por solicitar la sala de informática`);
         
         // Limpiar
         reservaForm.reset();
