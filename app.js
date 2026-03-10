@@ -485,7 +485,7 @@ function handleExportPDF() {
             body: tableRows,
             startY: 30,
             styles: { fontSize: 9 },
-            headStyles: { fillColor: [10, 102, 194] }
+            headStyles: { fillColor: [177, 199, 137] }
         });
 
         const safeTitle = titleContext.replace(/[^a-z0-9]/gi, '_').toLowerCase();
