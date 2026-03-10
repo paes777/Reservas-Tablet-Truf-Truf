@@ -159,6 +159,10 @@ function setupEventListeners() {
     btnDocenteLogout.addEventListener('click', handleDocenteLogout);
 
     // Eventos Formulario Docente Reservas
+    const fTipoRecurso = document.getElementById('tipo_recurso');
+    if (fTipoRecurso) {
+        fTipoRecurso.addEventListener('change', handleTipoRecursoChange);
+    }
     fieldFecha.addEventListener('change', handleFechaChange);
     reservaForm.addEventListener('submit', handleReservaSubmit);
 
@@ -458,6 +462,21 @@ function getAvailableBlocks(dateString) {
     };
 }
 
+function handleTipoRecursoChange() {
+    const tipo = document.getElementById('tipo_recurso').value;
+    const grupoCant = document.getElementById('grupo_cantidad_tablets');
+    const inputCant = document.getElementById('cantidad_tablets');
+    
+    if (tipo === 'Tablet') {
+        grupoCant.style.display = 'block';
+        inputCant.required = true;
+    } else {
+        grupoCant.style.display = 'none';
+        inputCant.required = false;
+        inputCant.value = '';
+    }
+}
+
 function handleFechaChange() {
     const fecha = fieldFecha.value;
     
@@ -548,6 +567,7 @@ async function handleReservaSubmit(e) {
     
     const curso = document.getElementById('curso').value;
     const asignatura = document.getElementById('asignatura').value;
+    const tipoRecurso = document.getElementById('tipo_recurso').value;
     const cantidadTablets = document.getElementById('cantidad_tablets').value;
     const objetivo = document.getElementById('objetivo').value.trim();
 
@@ -573,13 +593,14 @@ async function handleReservaSubmit(e) {
             bloque: bloquesElegidos.join(' y '), // Unifica 2 bloques continuos en UNA Sola Cadena
             curso,
             asignatura,
-            cantidadTablets: parseInt(cantidadTablets),
+            tipoRecurso: tipoRecurso,
+            cantidadTablets: tipoRecurso === 'Tablet' ? parseInt(cantidadTablets) : null,
             objetivo,
             estado: 'Pendiente', 
             createdAt: serverTimestamp() // Guardado universal en la nube
         });
         
-        showToast(`Gracias por solicitar las tablet`);
+        showToast(`Gracias por su solicitud`);
         
         // Limpiar
         reservaForm.reset();
@@ -645,6 +666,7 @@ function renderMyReservas() {
             <td>${niceDate}</td>
             <td>${res.bloque}</td>
             <td>${res.asignatura}</td>
+            <td>${res.tipoRecurso || 'Sala de Informática'}</td>
             <td><strong>${res.cantidadTablets || '-'}</strong></td>
             <td>
                 <select class="status-select ${sClass}" data-id="${res.id}" style="width:100%;">
@@ -769,6 +791,7 @@ function renderDashboard() {
             <td><strong>${escapeHtml(res.profesor)}</strong></td>
             <td>${res.curso}</td>
             <td>${res.asignatura}</td>
+            <td>${res.tipoRecurso || 'Sala de Informática'}</td>
             <td><strong>${res.cantidadTablets || '-'}</strong></td>
             <td><small>${escapeHtml(res.objetivo)}</small></td>
             <td>
@@ -877,7 +900,7 @@ function handleExportPDF() {
         doc.setTextColor(100);
         
         // Formatear Data para AutoTable
-        const tableColumn = ["Fecha", "Bloque", "Profesor", "Curso", "Asignatura", "Cant.", "Estado"];
+        const tableColumn = ["Fecha", "Bloque", "Profesor", "Curso", "Asignatura", "Recurso", "Cant.", "Estado"];
         const tableRows = [];
 
         filteredReservas.forEach(r => {
@@ -889,6 +912,7 @@ function handleExportPDF() {
                 r.profesor,
                 r.curso,
                 r.asignatura,
+                r.tipoRecurso || 'Sala de Informática',
                 r.cantidadTablets || '-',
                 r.estado
             ];
