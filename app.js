@@ -37,16 +37,16 @@ const auth = getAuth(app);
 const reservasRef = collection(db, "reservas");
 
 // --- CONSTANTES ---
-const BLOCKS_MON_THU = [
-    "08:30 a 10:00",
-    "10:15 a 11:45",
-    "12:00 a 13:30",
-    "14:30 a 15:45"
-];
-const BLOCKS_FRI = [
-    "08:30 a 10:00",
-    "10:15 a 11:45",
-    "12:00 a 13:30"
+const BLOCKS_ALL = [
+    "09:00 a 09:45",
+    "09:45 a 10:30",
+    "10:45 a 11:30",
+    "11:30 a 12:15",
+    "12:30 a 13:15",
+    "13:15 a 14:00",
+    "14:00 a 14:45",
+    "14:45 a 15:30",
+    "15:30 a 16:00"
 ];
 
 // --- ESTADO INICIAL ---
@@ -66,7 +66,7 @@ const navDocenteBtn = document.getElementById('navDocenteBtn');
 // Formularios Docente Principal
 const reservaForm = document.getElementById('reservaForm');
 const fieldFecha = document.getElementById('fecha');
-const fieldBloque = document.getElementById('bloque');
+const bloquesContainer = document.getElementById('bloques-container');
 const fieldProfesor = document.getElementById('profesor');
 const btnSubmitReserva = document.getElementById('btnSubmitReserva');
 const lblTeacherName = document.getElementById('lblTeacherName');
@@ -402,9 +402,7 @@ function getDayOfWeek(dateString) {
 }
 
 function getAvailableBlocks(dateString) {
-    const day = getDayOfWeek(dateString);
-    const isFriday = day === 5;
-    const baseBlocks = isFriday ? [...BLOCKS_FRI] : [...BLOCKS_MON_THU];
+    const baseBlocks = [...BLOCKS_ALL];
     
     const reservedOnDateMap = {};
     reservas
@@ -426,8 +424,7 @@ function getAvailableBlocks(dateString) {
 function handleFechaChange() {
     const fecha = fieldFecha.value;
     
-    fieldBloque.innerHTML = '<option value="">Seleccione un bloque...</option>';
-    fieldBloque.disabled = true;
+    bloquesContainer.innerHTML = '<em>Seleccione una fecha primero...</em>';
 
     if (!fecha) return;
 
@@ -438,22 +435,61 @@ function handleFechaChange() {
     }
 
     const blocksData = getAvailableBlocks(fecha);
+    bloquesContainer.innerHTML = '';
     
-    blocksData.base.forEach(b => {
-        const option = document.createElement('option');
-        option.value = b;
-        option.textContent = b;
+    blocksData.base.forEach((b, index) => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '8px';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'bloqueSelection';
+        checkbox.value = b;
+        checkbox.dataset.index = index;
+        checkbox.id = `bloque_${index}`;
+        
+        const label = document.createElement('label');
+        label.textContent = b;
+        label.setAttribute('for', `bloque_${index}`);
+        label.style.cursor = 'pointer';
+        label.style.margin = '0';
         
         const info = blocksData.reserved[b];
         if (info && info.isReserved) {
-            option.disabled = true;
-            option.textContent += ` (Ocupado por ${info.profesor})`;
+            checkbox.disabled = true;
+            label.textContent += ` (Ocupado por ${info.profesor})`;
+            label.style.color = '#a0aec0';
+            label.style.textDecoration = 'line-through';
         }
         
-        fieldBloque.appendChild(option);
+        checkbox.addEventListener('change', handleCheckboxChange);
+        
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        bloquesContainer.appendChild(div);
     });
+}
 
-    fieldBloque.disabled = false;
+function handleCheckboxChange() {
+    const checkboxes = Array.from(document.querySelectorAll('input[name="bloqueSelection"]:checked'));
+    
+    if (checkboxes.length > 2) {
+        alert("Atención: Puede seleccionar un máximo de 2 bloques.");
+        this.checked = false;
+        return;
+    }
+
+    if (checkboxes.length === 2) {
+        const index1 = parseInt(checkboxes[0].dataset.index);
+        const index2 = parseInt(checkboxes[1].dataset.index);
+        
+        if (Math.abs(index1 - index2) !== 1) {
+            alert("Atención: Los bloques seleccionados deben ser continuos (uno inmediatamente después del otro).");
+            this.checked = false;
+        }
+    }
 }
 
 async function handleReservaSubmit(e) {
@@ -464,17 +500,27 @@ async function handleReservaSubmit(e) {
     const profesor = profesorInput || "Profesor(a) no identificado";
     
     const fecha = fieldFecha.value;
-    const bloque = fieldBloque.value;
+    
+    const checkedBoxes = Array.from(document.querySelectorAll('input[name="bloqueSelection"]:checked'));
+    if (checkedBoxes.length === 0) {
+        alert("Debe seleccionar al menos un bloque horario.");
+        return;
+    }
+
+    const bloquesElegidos = checkedBoxes.map(cb => cb.value);
+    
     const curso = document.getElementById('curso').value;
     const asignatura = document.getElementById('asignatura').value;
     const objetivo = document.getElementById('objetivo').value.trim();
 
     // Verificación sincrónica RIGUROSA antes de envío
     const blocksData = getAvailableBlocks(fecha);
-    if (blocksData.reserved[bloque] && blocksData.reserved[bloque].isReserved) {
-        alert(`Error: El bloque ${bloque} ya se encuentra ocupado. No es posible duplicar la reserva.`);
-        handleFechaChange();
-        return;
+    for (let bol of bloquesElegidos) {
+        if (blocksData.reserved[bol] && blocksData.reserved[bol].isReserved) {
+            alert(`Error crítico: El bloque ${bol} ya se encuentra ocupado. No es posible duplicar reservas.`);
+            handleFechaChange();
+            return;
+        }
     }
 
     // Inhabilitar botón para evitar multi-clicks
@@ -482,19 +528,21 @@ async function handleReservaSubmit(e) {
     btnSubmitReserva.textContent = "Procesando...";
 
     try {
-        await addDoc(reservasRef, {
-            userId: currentDocenteUser ? currentDocenteUser.uid : 'desconocido',
-            profesor,
-            fecha,
-            bloque,
-            curso,
-            asignatura,
-            objetivo,
-            estado: 'Pendiente', 
-            createdAt: serverTimestamp() // Guardado universal en la nube
-        });
+        for (let bol of bloquesElegidos) {
+            await addDoc(reservasRef, {
+                userId: currentDocenteUser ? currentDocenteUser.uid : 'desconocido',
+                profesor,
+                fecha,
+                bloque: bol,
+                curso,
+                asignatura,
+                objetivo,
+                estado: 'Pendiente', 
+                createdAt: serverTimestamp() // Guardado universal en la nube
+            });
+        }
         
-        showToast("Gracias por solicitar la sala de informática");
+        showToast(`Gracias por solicitar ${bloquesElegidos.length} bloque(s) de la sala de informática`);
         
         // Limpiar
         reservaForm.reset();
@@ -504,8 +552,7 @@ async function handleReservaSubmit(e) {
             fieldProfesor.value = currentDocenteUser.displayName || currentDocenteUser.email.split('@')[0];
         }
         
-        fieldBloque.innerHTML = '<option value="">Seleccione una fecha primero...</option>';
-        fieldBloque.disabled = true;
+        bloquesContainer.innerHTML = '<em>Seleccione una fecha primero...</em>';
     } catch(err) {
         console.error("Error al guardar reserva: ", err);
         alert("Ha ocurrido un error de conexión al enviar. Verifique su internet y reintente.");

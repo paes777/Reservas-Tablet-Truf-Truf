@@ -100,11 +100,10 @@
                             <small class="help-text">Solo de lunes a viernes.</small>
                         </div>
                         <div class="form-group">
-                            <label for="bloque">Bloque Horario</label>
-                            <select id="bloque" required disabled>
-                                <option value="">Seleccione una fecha primero...</option>
-                            </select>
-                            <small class="help-text">Los bloques disponibles se actualizarán según el día.</small>
+                            <label>Bloques Horarios (Máximo 2 continuos)</label>
+                            <div id="bloques-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 1rem; color: #4a5568;">
+                                <em>Seleccione una fecha primero...</em>
+                            </div>
                         </div>
                     </div>
 
@@ -250,6 +249,6 @@
     <script src="jspdf.min.js"></script>
     <script src="autotable.min.js"></script>
     
-    <script type="module" src="app.js?v=3.10"></script>
+    <script type="module" src="app.js?v=3.11"></script>
 </body>
 </html>
