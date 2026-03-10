@@ -302,6 +302,10 @@ async function handleDocenteRegister(e) {
             displayName: name
         });
         
+        // Forzar actualización de la UI porque onAuthStateChanged se disparó ANTES de que el perfil se actualizara
+        lblTeacherName.textContent = name;
+        fieldProfesor.value = name;
+        
         // El listener onAuthStateChanged redirigirá automáticamente a la vista principal
         docenteRegisterForm.reset();
     } catch (error) {
