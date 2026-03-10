@@ -98,7 +98,7 @@ const exportFechaFin = document.getElementById('exportFechaFin');
 function init() {
     listenToAuthChanges(); // Manejar sesión docente
     setupEventListeners();
-    setMinDate();
+    setDateConstraints();
     listenToFirestore(); // Habilitar escucha en tiempo real
 }
 
@@ -383,11 +383,20 @@ async function handleDocenteLogout() {
 }
 
 // --- LOGICA FORMULARIO DOCENTE ---
-function setMinDate() {
+function setDateConstraints() {
     const today = new Date();
     const tzOffset = today.getTimezoneOffset() * 60000;
+    
+    // Fecha Mínima (Hoy)
     const localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().split('T')[0];
     fieldFecha.setAttribute('min', localISOTime);
+    
+    // Fecha Máxima (Último día del mes actual)
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const lastDayOfMonth = new Date(year, month + 1, 0); // El día 0 del mes siguiente es el último del actual
+    const lastDayISOTime = (new Date(lastDayOfMonth.getTime() - tzOffset)).toISOString().split('T')[0];
+    fieldFecha.setAttribute('max', lastDayISOTime);
 }
 
 function isWeekend(dateString) {
