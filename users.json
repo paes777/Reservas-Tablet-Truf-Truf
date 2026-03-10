@@ -1,1 +1,23 @@
 {"users": [
+{
+  "localId": "6UDZsgQWWNeQUWNSxUuBfwDIhEC2",
+  "email": "paes@truftruf.cl",
+  "emailVerified": false,
+  "passwordHash": "+urhgyhFi+EaD9+O2OHcSkc2x3uxZbbi6LSqFiNbkmBZ+d6TMGQhIOwN/LxySTxn7ecRViaKovqom50Zo4B+4w==",
+  "salt": "RodtkwhlJ/xmbw==",
+  "displayName": "Pablo Álvarez Estrada",
+  "lastSignedInAt": "1773111288307",
+  "createdAt": "1773111050247",
+  "providerUserInfo": []
+},
+{
+  "localId": "Dq2JGkqG8xg1VLPkfYiSkH6oaNL2",
+  "email": "j.alarcon@truftruf.cl",
+  "emailVerified": false,
+  "passwordHash": "B+5LCPXO9cuqTLc5+FPuYjghv2HC1eWIMfIooNNZqbcO2Je32IDPSo0t+j7H/lB6HSqxw5hn1C3Cs4Gsx4Dkvw==",
+  "salt": "ddbvzC5xbW9QeA==",
+  "displayName": "Juan Esteban Alarcon Cerpa",
+  "lastSignedInAt": "1773111426332",
+  "createdAt": "1773111426332",
+  "providerUserInfo": []
+}]}

@@ -491,6 +491,12 @@ async function handleReservaSubmit(e) {
         
         // Limpiar
         reservaForm.reset();
+        
+        // Repoblar el nombre si hay sesión iniciada
+        if (currentDocenteUser) {
+            fieldProfesor.value = currentDocenteUser.displayName || currentDocenteUser.email.split('@')[0];
+        }
+        
         fieldBloque.innerHTML = '<option value="">Seleccione una fecha primero...</option>';
         fieldBloque.disabled = true;
     } catch(err) {
