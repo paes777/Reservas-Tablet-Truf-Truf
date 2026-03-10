@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva Sala de Informática - Escuela Truf-Truf</title>
+    <title>Reserva Tablet - Escuela Truf-Truf</title>
     <!-- Modern font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=3.3">
@@ -14,7 +14,7 @@
             <img src="logo.png" alt="Logo Escuela Truf-Truf" class="logo">
             <div>
                 <h1>Escuela Truf-Truf</h1>
-                <h2>Reserva Sala de Informática</h2>
+                <h2>Reserva Tablet</h2>
             </div>
         </div>
         <button id="navAdminBtn" class="btn-outline">Acceso Administrador</button>
@@ -85,7 +85,7 @@
 
             <div class="card" style="margin-bottom: 2rem;">
                 <h3>Formulario de Solicitud</h3>
-                <p class="subtitle">Complete los datos para reservar la sala de informática.</p>
+                <p class="subtitle">Complete los datos para reservar las tablet.</p>
 
                 <form id="reservaForm">
                     <div class="form-group">
@@ -144,6 +144,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="cantidad_tablets">Cantidad de Tablets a Solicitar (1 a 18)</label>
+                        <input type="number" id="cantidad_tablets" min="1" max="18" required placeholder="Ej. 10">
+                    </div>
+
+                    <div class="form-group">
                         <label for="objetivo">Objetivo o Actividad</label>
                         <textarea id="objetivo" rows="3" required placeholder="Describa la actividad que trabajará con los estudiantes..."></textarea>
                     </div>
@@ -162,6 +167,7 @@
                                 <th>Fecha</th>
                                 <th>Bloque</th>
                                 <th>Asignatura</th>
+                                <th>Cant. Tablets</th>
                                 <th>Estado</th>
                                 <th>Acción</th>
                             </tr>
@@ -225,6 +231,7 @@
                                 <th>Profesor(a)</th>
                                 <th>Curso</th>
                                 <th>Asignatura</th>
+                                <th>Cant. Tablets</th>
                                 <th>Objetivo</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -244,7 +251,7 @@
     </main>
 
     <!-- Notificación emergente Toast -->
-    <div id="toast" class="toast">Gracias por solicitar la sala de informática</div>
+    <div id="toast" class="toast">Gracias por solicitar las tablet</div>
 
     <!-- Firebase SDKs -->
     <!-- PDF Generation Libraries (Local) -->

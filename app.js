@@ -466,7 +466,7 @@ function handleFechaChange() {
     if (!fecha) return;
 
     if (isWeekend(fecha)) {
-        alert("Atención: Solo se puede reservar la sala de lunes a viernes.");
+        alert("Atención: Solo se puede reservar las tablet de lunes a viernes.");
         fieldFecha.value = "";
         return;
     }
@@ -548,6 +548,7 @@ async function handleReservaSubmit(e) {
     
     const curso = document.getElementById('curso').value;
     const asignatura = document.getElementById('asignatura').value;
+    const cantidadTablets = document.getElementById('cantidad_tablets').value;
     const objetivo = document.getElementById('objetivo').value.trim();
 
     // Verificación sincrónica RIGUROSA antes de envío
@@ -572,12 +573,13 @@ async function handleReservaSubmit(e) {
             bloque: bloquesElegidos.join(' y '), // Unifica 2 bloques continuos en UNA Sola Cadena
             curso,
             asignatura,
+            cantidadTablets: parseInt(cantidadTablets),
             objetivo,
             estado: 'Pendiente', 
             createdAt: serverTimestamp() // Guardado universal en la nube
         });
         
-        showToast(`Gracias por solicitar la sala de informática`);
+        showToast(`Gracias por solicitar las tablet`);
         
         // Limpiar
         reservaForm.reset();
@@ -643,6 +645,7 @@ function renderMyReservas() {
             <td>${niceDate}</td>
             <td>${res.bloque}</td>
             <td>${res.asignatura}</td>
+            <td><strong>${res.cantidadTablets || '-'}</strong></td>
             <td>
                 <select class="status-select ${sClass}" data-id="${res.id}" style="width:100%;">
                     <option value="Pendiente" ${res.estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
@@ -766,6 +769,7 @@ function renderDashboard() {
             <td><strong>${escapeHtml(res.profesor)}</strong></td>
             <td>${res.curso}</td>
             <td>${res.asignatura}</td>
+            <td><strong>${res.cantidadTablets || '-'}</strong></td>
             <td><small>${escapeHtml(res.objetivo)}</small></td>
             <td>
                 <select class="status-select ${sClass}" data-id="${res.id}">
@@ -873,7 +877,7 @@ function handleExportPDF() {
         doc.setTextColor(100);
         
         // Formatear Data para AutoTable
-        const tableColumn = ["Fecha", "Bloque", "Profesor", "Curso", "Asignatura", "Estado"];
+        const tableColumn = ["Fecha", "Bloque", "Profesor", "Curso", "Asignatura", "Cant.", "Estado"];
         const tableRows = [];
 
         filteredReservas.forEach(r => {
@@ -885,6 +889,7 @@ function handleExportPDF() {
                 r.profesor,
                 r.curso,
                 r.asignatura,
+                r.cantidadTablets || '-',
                 r.estado
             ];
             tableRows.push(rowData);
