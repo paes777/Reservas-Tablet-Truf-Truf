@@ -403,7 +403,11 @@ function getAvailableBlocks(dateString) {
     reservas
         .filter(r => r.fecha === dateString)
         .forEach(r => {
-            reservedOnDateMap[r.bloque] = r.profesor;
+            // Guardamos un objeto con la info para no depender solo del nombre
+            reservedOnDateMap[r.bloque] = {
+                profesor: r.profesor || "Profesor(a) no identificado",
+                isReserved: true
+            };
         });
 
     return {
@@ -433,9 +437,10 @@ function handleFechaChange() {
         option.value = b;
         option.textContent = b;
         
-        if (blocksData.reserved[b]) {
+        const info = blocksData.reserved[b];
+        if (info && info.isReserved) {
             option.disabled = true;
-            option.textContent += ` (Ocupado por ${blocksData.reserved[b]})`;
+            option.textContent += ` (Ocupado por ${info.profesor})`;
         }
         
         fieldBloque.appendChild(option);
@@ -447,17 +452,20 @@ function handleFechaChange() {
 async function handleReservaSubmit(e) {
     e.preventDefault();
 
-    const profesor = document.getElementById('profesor').value.trim();
+    const profesorInput = document.getElementById('profesor').value.trim();
+    // Asegurar que el nombre no vaya vacío bajo ninguna circunstancia
+    const profesor = profesorInput || "Profesor(a) no identificado";
+    
     const fecha = fieldFecha.value;
     const bloque = fieldBloque.value;
     const curso = document.getElementById('curso').value;
     const asignatura = document.getElementById('asignatura').value;
     const objetivo = document.getElementById('objetivo').value.trim();
 
-    // Verificación sincrónica antes de envío
+    // Verificación sincrónica RIGUROSA antes de envío
     const blocksData = getAvailableBlocks(fecha);
-    if (blocksData.reserved[bloque]) {
-        alert("Error crítico: El bloque seleccionado acaba de ser reservado. Por favor elija otro.");
+    if (blocksData.reserved[bloque] && blocksData.reserved[bloque].isReserved) {
+        alert(`Error: El bloque ${bloque} ya se encuentra ocupado. No es posible duplicar la reserva.`);
         handleFechaChange();
         return;
     }
