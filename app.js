@@ -67,7 +67,8 @@ const btnLogout = document.getElementById('btnLogout');
 const reservasTbody = document.getElementById('reservasTbody');
 const noReservasMsg = document.getElementById('noReservasMsg');
 const btnExportPDF = document.getElementById('btnExportPDF');
-const exportYear = document.getElementById('exportYear');
+const exportFechaInicio = document.getElementById('exportFechaInicio');
+const exportFechaFin = document.getElementById('exportFechaFin');
 
 // --- INICIALIZACIÓN ---
 function init() {
@@ -331,9 +332,6 @@ function renderDashboard() {
 
     noReservasMsg.classList.add('d-none');
     document.querySelector('.table-responsive').classList.remove('d-none');
-    
-    // Poblar Selector de Años
-    populateYearSelect();
 
     const sortedReservas = [...reservas].sort((a, b) => {
         const dateA = new Date(a.fecha);
@@ -408,38 +406,34 @@ function renderDashboard() {
     });
 }
 
-function populateYearSelect() {
-    if (!exportYear) return;
-    
-    // Obtener años unícos de la data cargada
-    const years = [...new Set(reservas.map(r => r.fecha.split('-')[0]))].sort().reverse();
-    
-    // Guardar opción actual para intentar mantenerla tras el re-render
-    const currentVal = exportYear.value;
-
-    exportYear.innerHTML = '<option value="Todos">Todos</option>';
-    years.forEach(y => {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        exportYear.appendChild(opt);
-    });
-
-    if (currentVal && currentVal !== "Todos" && years.includes(currentVal)) {
-        exportYear.value = currentVal;
-    }
-}
-
 function handleExportPDF() {
-    const selectedYear = exportYear ? exportYear.value : 'Todos';
+    const start = exportFechaInicio ? exportFechaInicio.value : '';
+    const end = exportFechaFin ? exportFechaFin.value : '';
     
     let filteredReservas = reservas;
-    if (selectedYear !== 'Todos') {
-        filteredReservas = reservas.filter(r => r.fecha.startsWith(selectedYear));
+    let titleContext = "Todos los registros";
+
+    if (start || end) {
+        filteredReservas = reservas.filter(r => {
+            let startMatch = true;
+            let endMatch = true;
+            
+            if (start) {
+                startMatch = r.fecha >= start;
+            }
+            if (end) {
+                endMatch = r.fecha <= end;
+            }
+            return startMatch && endMatch;
+        });
+
+        if (start && end) titleContext = `Del ${start} al ${end}`;
+        else if (start) titleContext = `Desde el ${start}`;
+        else if (end) titleContext = `Hasta el ${end}`;
     }
     
     if (filteredReservas.length === 0) {
-        alert("No hay reservas para el año seleccionado.");
+        alert("No hay reservas para el rango seleccionado.");
         return;
     }
 
@@ -463,7 +457,7 @@ function handleExportPDF() {
         const doc = new jsPDFConstructor();
         
         doc.setFontSize(18);
-        doc.text(`Reporte de Reservas de Informática - ${selectedYear}`, 14, 22);
+        doc.text(`Reporte de Reservas - ${titleContext}`, 14, 22);
         
         doc.setFontSize(11);
         doc.setTextColor(100);
@@ -494,7 +488,8 @@ function handleExportPDF() {
             headStyles: { fillColor: [10, 102, 194] }
         });
 
-        doc.save(`Reservas_Informatica_Metrenco_${selectedYear}.pdf`);
+        const safeTitle = titleContext.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        doc.save(`Reservas_Metrenco_${safeTitle}.pdf`);
     } catch(err) {
         console.error("Error generating PDF:", err);
         alert("Error técnico al descargar PDF: " + err.message + "\n\nSolución: Presiona la tecla 'F5' o 'Ctrl + F5' para forzar la actualización de esta página en este computador.");

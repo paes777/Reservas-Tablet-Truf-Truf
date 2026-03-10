@@ -118,11 +118,13 @@
                 <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
                     <h3 style="margin: 0;">Gestión de Solicitudes</h3>
                     <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <label for="exportYear" style="margin: 0; font-weight: 600;">Año:</label>
-                            <select id="exportYear" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc;">
-                                <option value="Todos">Todos</option>
-                            </select>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            <label for="exportFechaInicio" style="margin: 0; font-weight: 600;">Desde:</label>
+                            <input type="date" id="exportFechaInicio" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc;">
+                            
+                            <label for="exportFechaFin" style="margin: 0; font-weight: 600;">Hasta:</label>
+                            <input type="date" id="exportFechaFin" style="padding: 0.4rem; border-radius: 4px; border: 1px solid #ccc;">
+                            
                             <button id="btnExportPDF" class="btn" style="background-color: #10b981; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">📄 Exportar PDF</button>
                         </div>
                         <button id="btnLogout" class="btn-outline-danger">Cerrar Sesión</button>
