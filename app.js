@@ -532,7 +532,13 @@ function renderMyReservas() {
             <td>${niceDate}</td>
             <td>${res.bloque}</td>
             <td>${res.asignatura}</td>
-            <td><span class="${sClass}" style="padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">${res.estado}</span></td>
+            <td>
+                <select class="status-select ${sClass}" data-id="${res.id}" style="width:100%;">
+                    <option value="Pendiente" ${res.estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                    <option value="Asistió" ${res.estado === 'Asistió' ? 'selected' : ''}>Asistió</option>
+                    <option value="No asistió" ${res.estado === 'No asistió' ? 'selected' : ''}>No asistió</option>
+                </select>
+            </td>
             <td>
                 <button class="btn-danger-icon btn-delete-my-reserva" data-id="${res.id}" title="Eliminar Reserva" style="border:none; cursor:pointer;">
                     ✖ Quitar
@@ -541,6 +547,26 @@ function renderMyReservas() {
         `;
 
         myReservasTbody.appendChild(tr);
+    });
+
+    // Eventos para actualizar Estado (Solo Docente)
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', async function() {
+            const newStatus = this.value;
+            const resId = this.dataset.id;
+            
+            // UI Optimitics Update (Color)
+            this.className = `status-select ${getStatusClass(newStatus)}`;
+            
+            try {
+                await updateDoc(doc(db, "reservas", resId), {
+                    estado: newStatus
+                });
+            } catch(e) {
+                console.error("Error actualizando estado:", e);
+                alert("Hubo un problema de conexión al guardar el nuevo estado. Verifique su internet.");
+            }
+        });
     });
 
     // Delegar borrado (Solo Docente)
