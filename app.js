@@ -15,12 +15,12 @@ import {
 
 // --- CONFIGURACIÓN FIREBASE FIRESTORE ---
 const firebaseConfig = {
-  projectId: "metrenco-reservas-app",
-  appId: "1:1080678458222:web:41c9785c702add6815577f",
-  storageBucket: "metrenco-reservas-app.firebasestorage.app",
-  apiKey: "AIzaSyBN17i1sN4hSOllyla4ASbzPWIgip552Jw",
-  authDomain: "metrenco-reservas-app.firebaseapp.com",
-  messagingSenderId: "1080678458222"
+  projectId: "truftruf-reservas-app",
+  appId: "1:330048122396:web:aad45cf2b7d3f504110d54",
+  storageBucket: "truftruf-reservas-app.firebasestorage.app",
+  apiKey: "AIzaSyDEy2G6-9D09WzE_6PZ7s4rB-fKVN77949",
+  authDomain: "truftruf-reservas-app.firebaseapp.com",
+  messagingSenderId: "330048122396"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -489,7 +489,7 @@ function handleExportPDF() {
         });
 
         const safeTitle = titleContext.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        doc.save(`Reservas_Metrenco_${safeTitle}.pdf`);
+        doc.save(`Reservas_Truf_Truf_${safeTitle}.pdf`);
     } catch(err) {
         console.error("Error generating PDF:", err);
         alert("Error técnico al descargar PDF: " + err.message + "\n\nSolución: Presiona la tecla 'F5' o 'Ctrl + F5' para forzar la actualización de esta página en este computador.");
