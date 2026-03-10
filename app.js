@@ -385,18 +385,44 @@ async function handleDocenteLogout() {
 // --- LOGICA FORMULARIO DOCENTE ---
 function setDateConstraints() {
     const today = new Date();
+    const day = today.getDay(); // 0 is Sunday, 5 is Friday
+    const hours = today.getHours();
+    
+    // El sistema se abre el viernes a las 14:00 y cierra el domingo a las 23:59
+    const isBookingWindowOpen = 
+        (day === 5 && hours >= 14) || // Viernes despues de las 14:00
+        (day === 6) ||                // Sabado entero
+        (day === 0);                  // Domingo entero
+
     const tzOffset = today.getTimezoneOffset() * 60000;
-    
-    // Fecha Mínima (Hoy)
-    const localISOTime = (new Date(today.getTime() - tzOffset)).toISOString().split('T')[0];
-    fieldFecha.setAttribute('min', localISOTime);
-    
-    // Fecha Máxima (Último día del mes actual)
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const lastDayOfMonth = new Date(year, month + 1, 0); // El día 0 del mes siguiente es el último del actual
-    const lastDayISOTime = (new Date(lastDayOfMonth.getTime() - tzOffset)).toISOString().split('T')[0];
-    fieldFecha.setAttribute('max', lastDayISOTime);
+    const bookingClosedMsg = document.getElementById('bookingClosedMsg');
+
+    if (isBookingWindowOpen) {
+        // La ventana está ABIERTA. La semana objetivo es el Lunes-Viernes que viene.
+        let daysToMonday = 0;
+        if (day === 5) daysToMonday = 3; // De Viernes a Lunes siguiente
+        if (day === 6) daysToMonday = 2; // De Sabado a Lunes
+        if (day === 0) daysToMonday = 1; // De Domingo a Lunes
+
+        const nextMonday = new Date(today.getTime());
+        nextMonday.setDate(today.getDate() + daysToMonday);
+
+        const nextFriday = new Date(nextMonday.getTime());
+        nextFriday.setDate(nextMonday.getDate() + 4);
+
+        const minISO = (new Date(nextMonday.getTime() - tzOffset)).toISOString().split('T')[0];
+        const maxISO = (new Date(nextFriday.getTime() - tzOffset)).toISOString().split('T')[0];
+
+        fieldFecha.setAttribute('min', minISO);
+        fieldFecha.setAttribute('max', maxISO);
+        
+        reservaForm.classList.remove('d-none');
+        if (bookingClosedMsg) bookingClosedMsg.classList.add('d-none');
+    } else {
+        // La ventana está CERRADA. Ocultar formulario y mostrar mensaje.
+        reservaForm.classList.add('d-none');
+        if (bookingClosedMsg) bookingClosedMsg.classList.remove('d-none');
+    }
 }
 
 function isWeekend(dateString) {
