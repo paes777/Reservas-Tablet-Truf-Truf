@@ -1,0 +1,17 @@
+﻿{
+  "status": "success",
+  "result": {
+    "fileName": "firebase-js-config.json",
+    "fileContents": "{\n  \"projectId\": \"truftruf-reservas-app\",\n  \"appId\": \"1:432254277949:web:aad45cf2b7d3f504110d54\",\n  \"storageBucket\": \"truftruf-reservas-app.firebasestorage.app\",\n  \"apiKey\": \"AIzaSyAwv9rJ5oyPHLkrw6g1Z9iVWf2mHiQ_S6s\",\n  \"authDomain\": \"truftruf-reservas-app.firebaseapp.com\",\n  \"messagingSenderId\": \"432254277949\",\n  \"projectNumber\": \"432254277949\",\n  \"version\": \"2\"\n}",
+    "sdkConfig": {
+      "projectId": "truftruf-reservas-app",
+      "appId": "1:432254277949:web:aad45cf2b7d3f504110d54",
+      "storageBucket": "truftruf-reservas-app.firebasestorage.app",
+      "apiKey": "AIzaSyAwv9rJ5oyPHLkrw6g1Z9iVWf2mHiQ_S6s",
+      "authDomain": "truftruf-reservas-app.firebaseapp.com",
+      "messagingSenderId": "432254277949",
+      "projectNumber": "432254277949",
+      "version": "2"
+    }
+  }
+}

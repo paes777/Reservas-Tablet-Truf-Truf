@@ -24,11 +24,11 @@ import {
 // --- CONFIGURACIÓN FIREBASE FIRESTORE ---
 const firebaseConfig = {
   projectId: "truftruf-reservas-app",
-  appId: "1:330048122396:web:aad45cf2b7d3f504110d54",
+  appId: "1:432254277949:web:aad45cf2b7d3f504110d54",
   storageBucket: "truftruf-reservas-app.firebasestorage.app",
-  apiKey: "AIzaSyDEy2G6-9D09WzE_6PZ7s4rB-fKVN77949",
+  apiKey: "AIzaSyAwv9rJ5oyPHLkrw6g1Z9iVWf2mHiQ_S6s",
   authDomain: "truftruf-reservas-app.firebaseapp.com",
-  messagingSenderId: "330048122396"
+  messagingSenderId: "432254277949"
 };
 
 const app = initializeApp(firebaseConfig);
